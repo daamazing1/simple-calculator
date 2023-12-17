@@ -1,5 +1,6 @@
-using SimpleCalculator.Calculator;
 namespace SimpleCalculator.Tests;
+
+using SimpleCalculator.Tokenizer;
 
 public class TokenizerTests
 {
@@ -80,5 +81,15 @@ public class TokenizerTests
 
         Assert.That(actual[2].TokenType == TokenType.Number);
         Assert.That(actual[9].TokenType == TokenType.Number);
+    }
+
+    [Test]
+    public void Tokenize_Invalid()
+    {
+        var tokenizer = new Tokenizer();
+        var actual = tokenizer.Tokenize("1+-2.12a*3/4+(-5abc-1)").ToList();
+
+        Assert.That(actual[3].TokenType == TokenType.Invalid);
+        Assert.That(actual[11].TokenType == TokenType.Invalid);
     }
 }

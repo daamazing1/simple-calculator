@@ -8,5 +8,6 @@ public enum TokenType
     Multiplication,
     Division,
     OpenParenthesis,
-    CloseParenthesis
+    CloseParenthesis,
+    Invalid
 };
