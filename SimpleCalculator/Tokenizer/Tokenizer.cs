@@ -1,8 +1,15 @@
 namespace SimpleCalculator.Tokenizer;
 
+/// <summary>
+/// Tokenization breaks expression into smaller parts for easier analysis by parser.
+/// </summary>
 public class Tokenizer
 {
     private List<TokenDefinition> _tokenDefinitions = new List<TokenDefinition>();
+
+    /// <summary>
+    /// Constructor, also where the initial token definitions will be created.
+    /// </summary>
     public Tokenizer()
     {
         // Configure the token defintions, as more functionality this list will grow
