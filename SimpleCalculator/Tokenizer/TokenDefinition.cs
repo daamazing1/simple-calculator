@@ -34,7 +34,7 @@ public class TokenDefinition
         var matches = _regex.Matches(input);
         for(int i=0; i<matches.Count; i++)
         {
-            yield return new TokenMatch(_returnsTokenType, matches[i].Value, matches[i].Index, matches[i].Index + matches[i].Length);
+            yield return new TokenMatch(_returnsTokenType, matches[i].Value, matches[i].Index, matches[i].Index + matches[i].Length, _precedence);
         }
     }    
 }

@@ -3,7 +3,7 @@ namespace SimpleCalculator.Tokenizer;
 /// <summary>
 /// Tokenization breaks expression into smaller parts for easier analysis by parser.
 /// </summary>
-public class Tokenizer
+public class Tokenizer : ITokenizer
 {
     private List<TokenDefinition> _tokenDefinitions = new List<TokenDefinition>();
 
@@ -12,14 +12,14 @@ public class Tokenizer
     /// </summary>
     public Tokenizer()
     {
-        // Configure the token defintions, as more functionality this list will grow
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.Number,@"(?<!-?\d+(?:\.\d+)?)-?\d+(?:\.\d+)?",4));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.Addition, @"\+",3));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.Subtraction, @"\-",3));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.Multiplication, @"\*",2));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.Division, @"\/",2));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.OpenParenthesis, @"\(", 1));
-        _tokenDefinitions.Add(new TokenDefinition(TokenType.CloseParenthesis, @"\)", 1));
+        // Configure the token defintions, as more functionality this list will grow.
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.Number,@"(?<!-?\d+(?:\.\d+)?)-?\d+(?:\.\d+)?",1));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.Addition, @"\+",2));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.Subtraction, @"\-",2));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.Multiplication, @"\*",3));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.Division, @"\/",3));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.OpenParenthesis, @"\(", 4));
+        _tokenDefinitions.Add(new TokenDefinition(TokenType.CloseParenthesis, @"\)", 4));
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class Tokenizer
         // check for any not matched tokens
         
         
-        TokenMatch lastMatch = new TokenMatch(TokenType.None, string.Empty,0,0);
+        TokenMatch lastMatch = new TokenMatch(TokenType.None, string.Empty,0,0,1);
         for (int i = 0; i < tokenMatches.Count; i++)
         {
             var bestMatch = tokenMatches[i];
@@ -43,14 +43,14 @@ public class Tokenizer
                 continue;
             // identify area of input string with a gap, so there were no matches for these.
             if (bestMatch.StartIndex > lastMatch.EndIndex)
-                yield return new Token(TokenType.Invalid, input.Substring(lastMatch.EndIndex, bestMatch.StartIndex-lastMatch.EndIndex));
+                yield return new Token(TokenType.Invalid, input.Substring(lastMatch.EndIndex, bestMatch.StartIndex-lastMatch.EndIndex), 1);
 
-            yield return new Token(bestMatch.TokenType, bestMatch.Value);
+            yield return new Token(bestMatch.TokenType, bestMatch.Value, bestMatch.Precedence);
 
             lastMatch = bestMatch;
         }
 
-        yield return new Token(TokenType.None,string.Empty);
+        yield return new Token(TokenType.None,string.Empty, 1);
     }
 
     /// <summary>

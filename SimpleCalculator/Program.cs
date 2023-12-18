@@ -1,4 +1,6 @@
 using Serilog;
+using SimpleCalculator.Parser;
+using SimpleCalculator.Tokenizer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,12 +34,8 @@ app.MapPost("/calculate", (Equation equation, ILoggerFactory loggerFactory) =>
     var logger = loggerFactory.CreateLogger("calculate");
     logger.LogInformation($"method: calculate, data: {equation.value}");
 
-    var t = new SimpleCalculator.Tokenizer.Tokenizer();
-    var tokens = t.Tokenize(equation.value);
-    foreach(var token in tokens)
-    {
-        logger.LogInformation(token.Value);
-    }
+    var p = new Parser(new Tokenizer(), equation.value );
+    p.Parse();
 
     return $"{equation.value} OK";
 });
