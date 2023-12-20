@@ -1,5 +1,7 @@
 namespace SimpleCalculator.Tests;
 
+using Microsoft.Extensions.Logging;
+using Moq;
 using SimpleCalculator.Tokenizer;
 
 public class TokenizerTests
@@ -7,7 +9,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Addition()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[1].TokenType == TokenType.Addition);
@@ -17,7 +20,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Subtraction()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[10].TokenType == TokenType.Subtraction);
@@ -26,7 +30,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Multiplication()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[3].TokenType == TokenType.Multiplication);
@@ -35,7 +40,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Division()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[5].TokenType == TokenType.Division);
@@ -44,7 +50,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_OpenParenthesis()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[8].TokenType == TokenType.OpenParenthesis);
@@ -53,7 +60,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_CloseParenthesis()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2*3/4+(5-1)").ToList();
 
         Assert.That(actual[12].TokenType == TokenType.CloseParenthesis);
@@ -62,7 +70,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Positive_Numbers()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+2.12*3/4+(5-1)").ToList();
 
         Assert.That(actual[0].TokenType == TokenType.Number);
@@ -76,7 +85,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Negative_Numbers()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+-2.12*3/4+(-5-1)").ToList();
 
         Assert.That(actual[2].TokenType == TokenType.Number);
@@ -86,7 +96,8 @@ public class TokenizerTests
     [Test]
     public void Tokenize_Invalid()
     {
-        var tokenizer = new Tokenizer();
+        var loggerMock = new Mock<ILogger>();
+        var tokenizer = new Tokenizer(loggerMock.Object);
         var actual = tokenizer.Tokenize("1+-2.12a*3/4+(-5abc-1)").ToList();
 
         Assert.That(actual[3].TokenType == TokenType.Invalid);

@@ -6,12 +6,15 @@ namespace SimpleCalculator.Tokenizer;
 public class Tokenizer : ITokenizer
 {
     private List<TokenDefinition> _tokenDefinitions = new List<TokenDefinition>();
+    private ILogger _logger;
 
     /// <summary>
     /// Constructor, also where the initial token definitions will be created.
     /// </summary>
-    public Tokenizer()
+    public Tokenizer(ILogger logger)
     {
+        _logger = logger;
+        _logger.LogDebug($"method Tokenizer::ctor, building definitions start.");
         // Configure the token defintions, as more functionality this list will grow.
         _tokenDefinitions.Add(new TokenDefinition(TokenType.Number,@"(?<!-?\d+(?:\.\d+)?)-?\d+(?:\.\d+)?",1));
         _tokenDefinitions.Add(new TokenDefinition(TokenType.Addition, @"\+",2));
@@ -20,6 +23,7 @@ public class Tokenizer : ITokenizer
         _tokenDefinitions.Add(new TokenDefinition(TokenType.Division, @"\/",3));
         _tokenDefinitions.Add(new TokenDefinition(TokenType.OpenParenthesis, @"\(", 4));
         _tokenDefinitions.Add(new TokenDefinition(TokenType.CloseParenthesis, @"\)", 4));
+        _logger.LogDebug($"method Tokenizer::ctor, building definitions end.");
     }
 
     /// <summary>
@@ -30,8 +34,7 @@ public class Tokenizer : ITokenizer
     public IEnumerable<Token> Tokenize(string input)
     {
         var tokenMatches = FindTokenMatches(input).OrderBy(t=>t.StartIndex).ToList();
-        // check for any not matched tokens
-        
+        _logger.LogDebug($"Tokenizer::Tokenize, Found token matches: {tokenMatches.Count}");
         
         TokenMatch lastMatch = new TokenMatch(TokenType.None, string.Empty,0,0,1);
         for (int i = 0; i < tokenMatches.Count; i++)

@@ -12,16 +12,18 @@ public class Parser
     private readonly ITokenizer _tokenizer;
     private readonly string _input;
     private readonly IEnumerator<Token> _tokens;
-    private readonly Stack<IExpression> _operands = new Stack<IExpression>();
+    private readonly Stack<INode> _operands = new Stack<INode>();
     private readonly Stack<Token> _operators = new Stack<Token>();
+    private ILogger _logger;
     
     /// <summary>
     /// Constructor taking in a tokenizer implementation and input string
     /// </summary>
     /// <param name="tokenizer">Tokenizer</param>
     /// <param name="input">Input string</param>
-    public Parser(ITokenizer tokenizer, string input)
+    public Parser(ITokenizer tokenizer, ILogger logger, string input)
     {
+        _logger = logger;
         _tokenizer = tokenizer;
         _input = input;
         _tokens = _tokenizer.Tokenize(_input).GetEnumerator();
@@ -32,14 +34,15 @@ public class Parser
     /// </summary>
     /// <returns>Abstract syntax tree</returns>
     /// <exception cref="Exception"></exception>
-    public IExpression Parse()
+    public INode Parse()
     {
         while(_tokens.MoveNext())
         {
+            _logger.LogDebug($"Parser::Parse, Current Token: {_tokens.Current.TokenType}, Token Value: {_tokens.Current.Value}");
             switch(_tokens.Current.TokenType)
             {
                 case TokenType.Number:
-                    _operands.Push(new NumberExpression(_tokens.Current));
+                    _operands.Push(new NumberNode(_tokens.Current));
                     break;
                 case TokenType.Addition:
                 case TokenType.Multiplication:
@@ -57,7 +60,7 @@ public class Parser
                             var right = _operands.Pop();
                             var left = _operands.Pop();
                             var op = _operators.Pop();
-                            _operands.Push(new BinaryExpression(op, left, right));
+                            _operands.Push(new BinaryOperationNode(op, left, right));
                             _operators.Push(_tokens.Current);
                         }
                     }
@@ -74,12 +77,12 @@ public class Parser
                         var right = _operands.Pop();
                         var left = _operands.Pop();
                         var op = _operators.Pop();
-                        _operands.Push(new BinaryExpression(op, left, right));
+                        _operands.Push(new BinaryOperationNode(op, left, right));
                     }
                     break;
                 case TokenType.Invalid:
                     // throw and exception 
-                    throw new Exception($"Invalid input: {_tokens.Current.Value}");
+                    throw new InvalidTokenException($"Invalid input: {_tokens.Current.Value}");
             }    
         }
         return _operands.Peek();

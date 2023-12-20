@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Http.Json;
+using Newtonsoft.Json;
 using Serilog;
 using SimpleCalculator.Parser;
 using SimpleCalculator.Tokenizer;
+using SimpleCalculator.ValueBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,12 +35,33 @@ app.UseHttpsRedirection();
 app.MapPost("/calculate", (Equation equation, ILoggerFactory loggerFactory) =>
 {
     var logger = loggerFactory.CreateLogger("calculate");
-    logger.LogInformation($"method: calculate, data: {equation.value}");
+    logger.LogInformation($"calculate, data: {equation.value}");
 
-    var p = new Parser(new Tokenizer(), equation.value );
-    p.Parse();
+    var parser = new Parser(new Tokenizer(logger), logger, equation.value );
+    try
+    {
+        var ast = parser.Parse();
 
-    return $"{equation.value} OK";
+        // calculate the result of the expression by traversing the AST with value builder class.
+        var result = ast.Accept(new ValueBuilder());
+
+        // using Newtonsoft to serialize the return type for the Polymorphic Type serialization which
+        // System.Text.Json does not currently support by design.
+        return JsonConvert.SerializeObject(new {
+            result = result,
+            ast = ast,
+            message = "OK"
+        }, new JsonSerializerSettings(){
+            TypeNameHandling = TypeNameHandling.Auto
+        });
+    }
+    catch(InvalidTokenException ex)
+    {
+        logger.LogInformation($"calculate, {ex.Message}");
+        return JsonConvert.SerializeObject(new {
+            message = $"Error: {ex.Message}"
+        });
+    }
 });
 
 app.Logger.LogInformation("Simple Calculator started");

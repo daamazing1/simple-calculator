@@ -2,52 +2,55 @@ namespace SimpleCalculator.Tests;
 
 using SimpleCalculator.Tokenizer;
 using SimpleCalculator.Parser;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 public class ParserTests
 {
     [Test]
     public void Parser_Test_AST()
     {
-        var parser = new Parser(new Tokenizer(),"1*2*3+5/2-1+23");
-        var actual = (BinaryExpression) parser.Parse();
+        var loggerMock = new Mock<ILogger>();
+        var parser = new Parser(new Tokenizer(loggerMock.Object),loggerMock.Object,"1*2*3+5/2-1+23");
+        var actual = (BinaryOperationNode) parser.Parse();
 
         Assert.That(actual.Token.TokenType, Is.EqualTo(TokenType.Addition));
 
-        var left = (BinaryExpression) actual.Left;
+        var left = (BinaryOperationNode) actual.Left;
         Assert.That(left.Token.TokenType, Is.EqualTo(TokenType.Multiplication));
 
         // down left side of tree
-        var rightnum = (NumberExpression) left.Right;
-        left = (BinaryExpression) left.Left;
+        var rightnum = (NumberNode) left.Right;
+        left = (BinaryOperationNode) left.Left;
         Assert.That(left.Token.TokenType, Is.EqualTo(TokenType.Multiplication));
         Assert.That(rightnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(rightnum.Token.Value, Is.EqualTo("3"));
 
-        rightnum = (NumberExpression) left.Right;
-        var leftnum = (NumberExpression) left.Left;
+        rightnum = (NumberNode) left.Right;
+        var leftnum = (NumberNode) left.Left;
         Assert.That(leftnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(leftnum.Token.Value, Is.EqualTo("1"));
         Assert.That(rightnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(rightnum.Token.Value, Is.EqualTo("2"));
 
         // down right side of tree
-        var right = (BinaryExpression) actual.Right;
+        var right = (BinaryOperationNode) actual.Right;
         Assert.That(right.Token.TokenType, Is.EqualTo(TokenType.Addition));
         
-        rightnum = (NumberExpression) right.Right;
-        left = (BinaryExpression) right.Left;
+        rightnum = (NumberNode) right.Right;
+        left = (BinaryOperationNode) right.Left;
         Assert.That(left.Token.TokenType, Is.EqualTo(TokenType.Subtraction));
         Assert.That(rightnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(rightnum.Token.Value, Is.EqualTo("23"));
 
-        rightnum = (NumberExpression) left.Right;
-        left = (BinaryExpression) left.Left;
+        rightnum = (NumberNode) left.Right;
+        left = (BinaryOperationNode) left.Left;
         Assert.That(left.Token.TokenType, Is.EqualTo(TokenType.Division));
         Assert.That(rightnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(rightnum.Token.Value, Is.EqualTo("1"));
 
-        rightnum = (NumberExpression) left.Right;
-        leftnum = (NumberExpression) left.Left;
+        rightnum = (NumberNode) left.Right;
+        leftnum = (NumberNode) left.Left;
         Assert.That(rightnum.Token.TokenType, Is.EqualTo(TokenType.Number));
         Assert.That(rightnum.Token.Value, Is.EqualTo("2"));
         Assert.That(leftnum.Token.TokenType, Is.EqualTo(TokenType.Number));

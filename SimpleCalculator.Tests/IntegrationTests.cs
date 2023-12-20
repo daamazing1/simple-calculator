@@ -1,4 +1,7 @@
+using System.Dynamic;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 public class IntegrationTests{
     [Test]
@@ -8,8 +11,9 @@ public class IntegrationTests{
         var client = factory.CreateClient();
 
         var response = await client.PostAsJsonAsync("/calculate", new Equation("1+2"));
-        var actual = await response.Content.ReadAsStringAsync();
+        var actual = JsonConvert.DeserializeObject<ExpandoObject>(await response.Content.ReadAsStringAsync());
 
-        Assert.That(actual, Is.EqualTo("1+2 OK"));
+        IDictionary<string, object> actualDictionary = actual;
+        Assert.That((double) actualDictionary["result"], Is.EqualTo(3.0));
     }
 }
