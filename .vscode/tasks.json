@@ -10,7 +10,7 @@
         },
         "args": [
             "test",
-            "${workspaceFolder}/SimpleCalculator.Tests/SimpleCalculator.Tests.csproj",
+            "${workspaceFolder}/backend/SimpleCalculator.Tests/SimpleCalculator.Tests.csproj",
             "/p:CollectCoverage=true",
             "/p:CoverletOutputFormat=lcov",
             "/p:CoverletOutput=./lcov.info"
